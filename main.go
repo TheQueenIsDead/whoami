@@ -1,21 +1,49 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"time"
 )
+
+type WhoAmI struct {
+	Hostname string    `json:"hostname"`
+	Time     time.Time `json:"time"`
+	Timezone string    `json:"timezone"`
+}
+
+func NewWhoAmi() WhoAmI {
+
+	hostName, _ := os.Hostname()
+	currentTime := time.Now()
+	timezone, offset := currentTime.Zone()
+
+	return WhoAmI{
+		Hostname: hostName,
+		Time:     currentTime,
+		Timezone: fmt.Sprintf("%s %d", timezone, offset),
+	}
+}
 
 func main() {
 
-	jsonResponse := `{"hello": "world"}`
+	// Return a new WhoAmI payload with server and OS information
 	http.HandleFunc("/whoami", func(w http.ResponseWriter, r *http.Request) {
-		_, _ = fmt.Fprint(w, jsonResponse)
+		fmt.Println("Handling /whoami")
+		payload := NewWhoAmi()
+		w.Header().Set("Content-Type", "application/json")
+		err := json.NewEncoder(w).Encode(payload)
+		if err != nil {
+			return
+		}
 	})
 
-	fileServer := http.FileServer(http.Dir("./static")) // New code
-	http.Handle("/", fileServer)                        // New code
-	//http.HandleFunc("/hello", helloHandler)
+	// Serve static files
+	fileServer := http.FileServer(http.Dir("./static"))
+	http.Handle("/", fileServer)
 
 	fmt.Println("Starting server at port 8080")
 	if err := http.ListenAndServe(":8080", nil); err != nil {
