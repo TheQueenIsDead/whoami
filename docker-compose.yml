@@ -1,0 +1,10 @@
+version: "3"
+
+services:
+  whoami:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: thequeenisdead/whoami
+    ports:
+      - "8080:8080"
