@@ -3,49 +3,58 @@
     <title>whoami</title>
 </head>
 <body>
-<h2>whoami</h2>
+<div id="main">
+    <h2>whoami</h2>
+    <!-- Table -->
+</div>
+
 </body>
 
 <script>
 
     function tableCreate(data) {
-        const body = document.body,
-            tbl = document.createElement('table');
+        const main = document.getElementById("main");
+        const tbl = document.createElement('table');
         tbl.style.width = '100px';
         tbl.style.border = '1px solid black';
 
         const entries = Object.entries(data);
-        for (let [key,value] of entries) {
+        for (let [key, value] of entries) {
             console.log(key, value);
-            const tr = tbl.insertRow()
+
+            if (typeof value === "object") {
+                value = JSON.stringify(value);
+            }
+
+            const tr = tbl.insertRow();
             const tdKey = tr.insertCell();
-            tdKey.appendChild(document.createTextNode(key))
+            tdKey.appendChild(document.createTextNode(key));
             const tdValue = tr.insertCell();
 
-            tdValue.appendChild(document.createTextNode(value))
+            tdValue.appendChild(document.createTextNode(value));
             tdKey.style.border = '1px solid black';
             tdValue.style.border = '1px solid black';
 
         }
-        body.appendChild(tbl);
+        main.appendChild(tbl);
     }
 
     const request = new XMLHttpRequest();
     request.open('GET', '/whoami', true);
 
-    request.onload = function() {
+    request.onload = function () {
         if (request.status >= 200 && request.status < 400) {
             // Success!
             let data = JSON.parse(request.responseText);
-            tableCreate(data)
+            tableCreate(data);
         } else {
             // We reached our target server, but it returned an error
-            console.log("API Error...")
+            console.log("API Error...");
         }
     };
 
-    request.onerror = function() {
-        console.log("Error!")
+    request.onerror = function () {
+        console.log("Error!");
         // There was a connection error of some sort
     };
 
