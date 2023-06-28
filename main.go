@@ -13,6 +13,7 @@ type WhoAmI struct {
 	Hostname string    `json:"hostname"`
 	Time     time.Time `json:"time"`
 	Timezone string    `json:"timezone"`
+	MOTD     string    `json:"motd,omitempty"`
 }
 
 func NewWhoAmi() WhoAmI {
@@ -20,11 +21,13 @@ func NewWhoAmi() WhoAmI {
 	hostName, _ := os.Hostname()
 	currentTime := time.Now()
 	timezone, offset := currentTime.Zone()
+	motd := os.Getenv("MOTD")
 
 	return WhoAmI{
 		Hostname: hostName,
 		Time:     currentTime,
 		Timezone: fmt.Sprintf("%s %d", timezone, offset),
+		MOTD:     motd,
 	}
 }
 
